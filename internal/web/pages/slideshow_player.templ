@@ -1,0 +1,94 @@
+package pages
+
+import "fmt"
+import "galleryduck/internal/web/components"
+
+templ SlideshowPlayer(idPrefix string, data SlideshowPlayerData, showClose bool, manualInit bool) {
+	<section
+		data-slideshow-player
+		data-slideshow-manual={ fmt.Sprintf("%t", manualInit) }
+		data-id-prefix={ idPrefix }
+		data-items-b64={ data.ItemsB64 }
+		data-autoplay={ fmt.Sprintf("%t", data.Autoplay) }
+		data-auto-fullscreen={ fmt.Sprintf("%t", data.Fullscreen) }
+		data-speed-ms={ fmt.Sprintf("%d", data.SpeedMS) }
+		data-transition={ data.Transition }
+		data-random={ fmt.Sprintf("%t", data.Random) }
+		data-loop={ fmt.Sprintf("%t", data.Loop) }
+		class="rounded-2xl border border-slate-200 bg-white p-4 md:p-6 shadow-sm min-h-[60vh]"
+	>
+		<div class="flex items-center justify-between gap-3">
+			<p class="text-slate-600 text-sm">
+				Progress: <strong data-role="progress">0 / { fmt.Sprintf("%d", data.Count) }</strong> · Scope: <strong data-role="scope">{ data.ScopeText }</strong>
+			</p>
+			if showClose {
+				<button data-role="close" type="button" class="rounded-xl border border-slate-300 px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-100">Close</button>
+			}
+		</div>
+		<div class="mt-3 grid grid-cols-1 md:grid-cols-5 md:items-end gap-3">
+			<div class="md:col-span-2 flex flex-wrap gap-2 self-end md:pb-0.5">
+				<button data-role="prev" type="button" class="inline-flex h-11 items-center justify-center rounded-xl border border-slate-300 px-5 text-sm font-semibold text-slate-700 hover:bg-slate-100">Prev</button>
+				<button data-role="play" type="button" class="inline-flex h-11 items-center justify-center rounded-xl bg-emerald-700 px-5 text-sm font-semibold text-white hover:bg-emerald-600">Play</button>
+				<button data-role="next" type="button" class="inline-flex h-11 items-center justify-center rounded-xl border border-slate-300 px-5 text-sm font-semibold text-slate-700 hover:bg-slate-100">Next</button>
+			</div>
+			<label class="block">
+				<span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Speed (sec)</span>
+				<select data-role="speed" class="mt-1 w-full rounded-xl border border-slate-300 bg-white p-2.5">
+					<option value="1" selected?={ data.SpeedMS == 1000 }>1 sec</option>
+					<option value="2" selected?={ data.SpeedMS == 2000 }>2 sec</option>
+					<option value="3" selected?={ data.SpeedMS == 3000 || data.SpeedMS == 0 }>3 sec</option>
+					<option value="5" selected?={ data.SpeedMS == 5000 }>5 sec</option>
+					<option value="10" selected?={ data.SpeedMS == 10000 }>10 sec</option>
+				</select>
+			</label>
+			<label class="block">
+				<span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Transition</span>
+				<select data-role="transition" class="mt-1 w-full rounded-xl border border-slate-300 bg-white p-2.5">
+					<option value="fade" selected?={ data.Transition == "fade" || data.Transition == "" }>Fade</option>
+					<option value="slide" selected?={ data.Transition == "slide" }>Slide</option>
+				</select>
+			</label>
+			<div class="flex flex-wrap items-end gap-2">
+				@components.Checkbox(idPrefix + "-random", "slideshow-random", "Random", "1", data.Random)
+				@components.Checkbox(idPrefix + "-loop", "slideshow-loop", "Loop", "1", data.Loop)
+			</div>
+		</div>
+
+		<div data-role="stage-wrap" class="relative mt-4">
+			@components.IconButton(
+				idPrefix + "-fullscreen",
+				"Enter fullscreen",
+				"/assets/svg/fullscreen.svg",
+				"absolute right-3 top-3 z-10 inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 bg-white/90 text-slate-700 shadow-sm hover:bg-white",
+			)
+			<div data-role="stage" class="relative w-full min-h-[52vh] flex items-center justify-center overflow-hidden rounded-xl bg-slate-100"></div>
+		</div>
+		<div data-role="caption" class="mt-4 text-sm text-slate-600"></div>
+		<div data-role="empty" class="mt-8 rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-500 hidden">
+			No media matched this slideshow scope.
+		</div>
+
+		<style>
+			[data-slideshow-player] [data-role="stage-wrap"]:fullscreen {
+				width: 100vw;
+				height: 100vh;
+				padding: 0;
+				margin: 0;
+				background: #020617;
+			}
+			[data-slideshow-player] [data-role="stage-wrap"]:fullscreen [data-role="stage"] {
+				width: 100%;
+				height: 100%;
+				min-height: 100%;
+				border-radius: 0;
+				background: #020617;
+			}
+			[data-slideshow-player] [data-role="stage-wrap"]:fullscreen [id$="-fullscreen"] {
+				display: none !important;
+			}
+			[data-slideshow-player] [data-role="stage-wrap"]:-webkit-full-screen [id$="-fullscreen"] {
+				display: none !important;
+			}
+		</style>
+	</section>
+}

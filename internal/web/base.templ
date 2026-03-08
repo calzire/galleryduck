@@ -1,0 +1,80 @@
+package web
+
+templ BasePage(title string, mainClass string, theme string) {
+	<!DOCTYPE html>
+	<html lang="en" data-theme={ theme }>
+		<head>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			<title>{ title }</title>
+			<link rel="icon" type="image/x-icon" href="/favicon.ico"/>
+			<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico"/>
+			<link href="/assets/css/output.css" rel="stylesheet"/>
+			<script src="/assets/js/htmx.min.js"></script>
+			<script src="/assets/js/ui.js" defer></script>
+			<script src="/assets/js/slideshow.js" defer></script>
+		</head>
+		<body class="min-h-screen bg-gradient-to-b from-slate-50 to-slate-200 text-slate-900">
+			<main class={ mainClass }>
+				{ children... }
+			</main>
+			<script>
+				(function () {
+					const initialTheme = document.documentElement.dataset.theme || 'system';
+					function resolveTheme(theme) {
+						if (theme === 'dark') return 'dark';
+						if (theme === 'light') return 'light';
+						return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+					}
+					function applyTheme(theme) {
+						const resolved = resolveTheme(theme);
+						document.documentElement.classList.toggle('dark', resolved === 'dark');
+						document.documentElement.dataset.theme = theme;
+						document.documentElement.dataset.themeResolved = resolved;
+						if (document.body) {
+							document.body.classList.toggle('theme-dark', resolved === 'dark');
+							document.body.dataset.themeResolved = resolved;
+						}
+					}
+
+					const storedTheme = localStorage.getItem('galleryduck-theme');
+					applyTheme(storedTheme || initialTheme || 'system');
+
+					const initializers = [
+						'initCollapsibles',
+						'initSubtypeFilters',
+						'initSlideshowPlayers',
+						'initThemeToggles',
+						'initGalleryShortcuts',
+						'initFilterEnterSubmit',
+						'initMediaCardPreview',
+					];
+
+					function runInitializers(target) {
+						const ui = window.GalleryDuckUI;
+						if (!ui) return;
+						for (const name of initializers) {
+							const fn = ui[name];
+							if (typeof fn === 'function') {
+								fn(target);
+							}
+						}
+					}
+
+					document.addEventListener('DOMContentLoaded', function () {
+						runInitializers(document);
+					});
+					document.body.addEventListener('htmx:afterSwap', function (event) {
+						runInitializers(event.target);
+					});
+				})();
+			</script>
+		</body>
+	</html>
+}
+
+templ Base() {
+	@BasePage("GalleryDuck", "max-w-sm mx-auto p-4", "system") {
+		{ children... }
+	}
+}

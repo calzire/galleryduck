@@ -1,0 +1,44 @@
+package components
+
+templ Collapsible(id string, title string, subtitle string, open bool, sectionClass string, contentClass string) {
+	<section class={ sectionClass } data-collapsible data-collapsible-open={ func() string {
+		if open {
+			return "true"
+		}
+		return "false"
+	}() }>
+		<button
+			type="button"
+			id={ id + "-trigger" }
+			aria-controls={ id + "-content" }
+			aria-expanded={ func() string {
+				if open {
+					return "true"
+				}
+				return "false"
+			}() }
+			data-collapsible-trigger
+			class="w-full px-4 py-4 md:px-5 flex items-center justify-between text-left"
+		>
+			<div>
+				<p class="text-xs font-semibold uppercase tracking-widest text-slate-500">{ title }</p>
+				if subtitle != "" {
+					<p class="text-sm text-slate-600 mt-1">{ subtitle }</p>
+				}
+			</div>
+			<span class="text-slate-500 leading-none inline-flex items-center justify-center">
+				<img data-collapsible-icon-down src="/assets/svg/chevron-down.svg" alt="" class="h-5 w-5"/>
+				<img data-collapsible-icon-up src="/assets/svg/chevron-up.svg" alt="" class="h-5 w-5 hidden"/>
+			</span>
+		</button>
+		<div
+			id={ id + "-content" }
+			role="region"
+			aria-labelledby={ id + "-trigger" }
+			data-collapsible-content
+			class={ contentClass }
+		>
+			{ children... }
+		</div>
+	</section>
+}

@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+@layer base {
+  html.dark body,
+  body.theme-dark,
+  html[data-theme-resolved="dark"] body,
+  body[data-theme-resolved="dark"] {
+    @apply bg-slate-950 text-slate-100;
+    background-image: none !important;
+  }
+}
+
+@layer components {
+  html.dark .bg-white,
+  html.dark .bg-white\/90,
+  body.theme-dark .bg-white,
+  body.theme-dark .bg-white\/90,
+  html[data-theme-resolved="dark"] .bg-white,
+  html[data-theme-resolved="dark"] .bg-white\/90,
+  body[data-theme-resolved="dark"] .bg-white,
+  body[data-theme-resolved="dark"] .bg-white\/90 {
+    @apply bg-slate-900 text-slate-100;
+    background-color: var(--color-slate-900) !important;
+    color: var(--color-slate-100) !important;
+  }
+
+  html.dark .bg-slate-50,
+  html.dark .bg-slate-100,
+  html.dark .from-slate-50,
+  html.dark .to-slate-200,
+  body.theme-dark .bg-slate-50,
+  body.theme-dark .bg-slate-100,
+  body.theme-dark .from-slate-50,
+  body.theme-dark .to-slate-200,
+  html[data-theme-resolved="dark"] .bg-slate-50,
+  html[data-theme-resolved="dark"] .bg-slate-100,
+  html[data-theme-resolved="dark"] .from-slate-50,
+  html[data-theme-resolved="dark"] .to-slate-200,
+  body[data-theme-resolved="dark"] .bg-slate-50,
+  body[data-theme-resolved="dark"] .bg-slate-100,
+  body[data-theme-resolved="dark"] .from-slate-50,
+  body[data-theme-resolved="dark"] .to-slate-200 {
+    @apply bg-slate-900 text-slate-100;
+    background-color: var(--color-slate-900) !important;
+    color: var(--color-slate-100) !important;
+  }
+
+  html.dark .border-slate-200,
+  html.dark .border-slate-300,
+  body.theme-dark .border-slate-200,
+  body.theme-dark .border-slate-300,
+  html[data-theme-resolved="dark"] .border-slate-200,
+  html[data-theme-resolved="dark"] .border-slate-300,
+  body[data-theme-resolved="dark"] .border-slate-200,
+  body[data-theme-resolved="dark"] .border-slate-300 {
+    @apply border-slate-700;
+    border-color: var(--color-slate-700) !important;
+  }
+
+  html.dark .text-slate-900,
+  body.theme-dark .text-slate-900,
+  html[data-theme-resolved="dark"] .text-slate-900,
+  body[data-theme-resolved="dark"] .text-slate-900 {
+    @apply text-slate-100;
+    color: var(--color-slate-100) !important;
+  }
+
+  html.dark .text-slate-700,
+  html.dark .text-slate-600,
+  html.dark .text-slate-500,
+  body.theme-dark .text-slate-700,
+  body.theme-dark .text-slate-600,
+  body.theme-dark .text-slate-500,
+  html[data-theme-resolved="dark"] .text-slate-700,
+  html[data-theme-resolved="dark"] .text-slate-600,
+  html[data-theme-resolved="dark"] .text-slate-500,
+  body[data-theme-resolved="dark"] .text-slate-700,
+  body[data-theme-resolved="dark"] .text-slate-600,
+  body[data-theme-resolved="dark"] .text-slate-500 {
+    @apply text-slate-300;
+    color: var(--color-slate-300) !important;
+  }
+
+  html.dark .bg-slate-900,
+  body.theme-dark .bg-slate-900,
+  html[data-theme-resolved="dark"] .bg-slate-900,
+  body[data-theme-resolved="dark"] .bg-slate-900 {
+    @apply bg-slate-800;
+  }
+
+  html.dark .js-theme-toggle img,
+  body.theme-dark .js-theme-toggle img,
+  html[data-theme-resolved="dark"] .js-theme-toggle img,
+  body[data-theme-resolved="dark"] .js-theme-toggle img {
+    filter: invert(1) brightness(1.15);
+  }
+}

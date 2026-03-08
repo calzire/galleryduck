@@ -1,0 +1,15 @@
+package components
+
+templ Modal(id string, panelClass string) {
+	<div
+		id={ id }
+		data-modal
+		class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm p-3 md:p-6 overflow-y-auto"
+		role="dialog"
+		aria-modal="true"
+	>
+		<div data-modal-panel class={ panelClass }>
+			{ children... }
+		</div>
+	</div>
+}

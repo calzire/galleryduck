@@ -1,0 +1,370 @@
+package pages
+
+import "fmt"
+import "galleryduck/internal/web"
+import "galleryduck/internal/web/components"
+
+templ GalleryPage(data GalleryPageData) {
+	@web.BasePage("GalleryDuck Gallery", "max-w-7xl mx-auto p-4 md:p-8 space-y-6", data.Theme) {
+		<div data-gallery-root>
+		<header class="rounded-2xl border border-slate-200 bg-white/90 backdrop-blur px-6 py-5 shadow-sm flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+			<div>
+				<p class="text-xs font-semibold uppercase tracking-widest text-slate-500">GalleryDuck</p>
+				<h1 class="text-3xl md:text-4xl font-black leading-tight text-slate-900">Media Gallery</h1>
+				<p class="text-slate-600 text-sm mt-1">
+					Indexed media files: <strong>{ fmt.Sprintf("%d", data.MediaCount) }</strong> · Library paths: <strong>{ fmt.Sprintf("%d", data.LibraryCount) }</strong>
+				</p>
+			</div>
+			<div class="flex gap-2 flex-wrap">
+				<button
+					id="rescan-btn"
+					class="rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-600 transition-colors"
+					hx-post="/api/index/rebuild"
+					hx-trigger="click"
+					hx-swap="none"
+					hx-on::after-request="htmx.trigger('#filters-form', 'submit')"
+				>Rescan</button>
+				<button
+					id="open-slideshow-overlay"
+					type="button"
+					class="inline-flex items-center justify-center rounded-xl bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-amber-500 transition-colors"
+				>Slideshow</button>
+				@components.IconButtonWithImgClass(
+					"open-settings-btn",
+					"Settings",
+					"/assets/svg/settings.svg",
+					"inline-flex h-11 w-11 items-center justify-center rounded-xl bg-slate-900 text-white shadow-sm hover:bg-slate-700 transition-colors",
+					"h-5 w-5 invert brightness-200",
+				)
+				@components.ThemeToggle("gallery-theme-toggle")
+			</div>
+		</header>
+
+		@components.Collapsible(
+			"gallery-filters",
+			"Filters",
+			"Type, date, sort, and view controls",
+			false,
+			"rounded-2xl border border-slate-200 bg-white shadow-sm mt-4",
+			"px-4 pb-4 md:px-5 md:pb-5",
+		) {
+			<form
+				id="filters-form"
+				hx-get="/media/list"
+				hx-target="#media-results"
+				hx-swap="innerHTML"
+				class="space-y-4"
+			>
+				<input type="hidden" id="page" name="page" value={ fmt.Sprintf("%d", data.Query.Page) }/>
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+					<label class="block">
+						<span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Media type</span>
+						<select
+							name="type"
+							class="mt-1 w-full rounded-xl border border-slate-300 bg-white p-2.5"
+							hx-get="/media/subtypes"
+							hx-trigger="change"
+							hx-target="#subtype-options-container"
+							hx-swap="innerHTML"
+							hx-include="#filters-form"
+						>
+							<option value="" selected?={ data.Query.Type == "" }>All</option>
+							<option value="image" selected?={ data.Query.Type == "image" }>Image</option>
+							<option value="video" selected?={ data.Query.Type == "video" }>Video</option>
+							<option value="audio" selected?={ data.Query.Type == "audio" }>Audio</option>
+						</select>
+					</label>
+					<label class="block">
+						<span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Year</span>
+						<input name="year" type="number" min="1900" max="9999" value={ data.Query.Year } placeholder="YYYY" class="mt-1 w-full rounded-xl border border-slate-300 bg-white p-2.5"/>
+					</label>
+					<label class="block">
+						<span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Date</span>
+						<input name="date" type="date" value={ data.Query.Date } class="mt-1 w-full rounded-xl border border-slate-300 bg-white p-2.5"/>
+					</label>
+				</div>
+
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+					<label class="block">
+						<span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Search</span>
+						<input name="search" value={ data.Query.Search } placeholder="name or path" class="mt-1 w-full rounded-xl border border-slate-300 bg-white p-2.5"/>
+					</label>
+					<label class="block">
+						<span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Sort by</span>
+						<select name="sort" class="mt-1 w-full rounded-xl border border-slate-300 bg-white p-2.5">
+							<option value="date" selected?={ data.Query.Sort == "date" || data.Query.Sort == "" }>Date</option>
+							<option value="name" selected?={ data.Query.Sort == "name" }>Name</option>
+							<option value="type" selected?={ data.Query.Sort == "type" }>Type</option>
+							<option value="random" selected?={ data.Query.Sort == "random" }>Random</option>
+						</select>
+					</label>
+					<label class="block">
+						<span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Order</span>
+						<select name="order" class="mt-1 w-full rounded-xl border border-slate-300 bg-white p-2.5">
+							<option value="desc" selected?={ data.Query.Order == "desc" || data.Query.Order == "" }>Desc</option>
+							<option value="asc" selected?={ data.Query.Order == "asc" }>Asc</option>
+						</select>
+					</label>
+					<label class="block">
+						<span class="text-xs font-semibold uppercase tracking-wide text-slate-500">View</span>
+						<select name="view" class="mt-1 w-full rounded-xl border border-slate-300 bg-white p-2.5">
+							<option value="grid">Grid</option>
+							<option value="list">List</option>
+						</select>
+					</label>
+				</div>
+				@components.Collapsible(
+					"gallery-subtypes",
+					"Subtypes",
+					"Filter by file extension",
+					false,
+					"rounded-xl border border-slate-200 bg-slate-50",
+					"px-3 pb-3",
+				) {
+					<div id="subtype-options-container">
+						@GallerySubTypeOptions(data)
+					</div>
+				}
+				<div class="flex flex-wrap gap-2">
+					<button type="submit" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">Apply</button>
+					<button type="button" class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100" hx-on:click="
+						this.form.reset();
+						const pageInput = document.getElementById('page');
+						if (pageInput) pageInput.value = '1';
+						htmx.trigger('#filters-form', 'submit');
+					">Reset</button>
+				</div>
+			</form>
+		}
+
+		<div id="media-results" class="mt-1">
+			@GalleryResults(data)
+		</div>
+
+		@components.Modal("gallery-media-preview-modal", "mx-auto max-w-5xl") {
+			<div class="rounded-2xl border border-slate-200 bg-white p-4 md:p-5 shadow-xl h-[86vh] max-h-[86vh] flex flex-col gap-4">
+				<div class="flex items-start justify-between gap-4 shrink-0">
+					<div class="min-w-0">
+						<h2 id="media-preview-title" class="truncate text-xl font-bold text-slate-900"></h2>
+						<p id="media-preview-meta" class="mt-1 text-sm text-slate-600"></p>
+					</div>
+					<div class="flex items-center gap-2">
+						@components.IconButton(
+							"media-preview-fullscreen",
+							"Fullscreen preview",
+							"/assets/svg/fullscreen.svg",
+							"inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-700 shadow-sm hover:bg-slate-100 transition-colors",
+						)
+						<button id="media-preview-close" type="button" class="rounded-xl border border-slate-300 px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-100">Close</button>
+					</div>
+				</div>
+				<div class="rounded-xl bg-slate-100 p-2 md:p-4 flex-1 min-h-0 flex items-center justify-center">
+					<img id="media-preview-image" alt="" class="hidden mx-auto max-h-full max-w-full w-auto rounded-lg object-contain"/>
+					<video id="media-preview-video" controls autoplay preload="metadata" class="hidden mx-auto max-h-full max-w-full w-auto rounded-lg bg-black"></video>
+					<audio id="media-preview-audio" controls autoplay preload="metadata" class="hidden w-full"></audio>
+				</div>
+				<div class="flex items-center justify-between shrink-0">
+					<button id="media-preview-prev" type="button" class="rounded-xl border border-slate-300 px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-100 disabled:border-slate-200 disabled:text-slate-400">Prev</button>
+					<button id="media-preview-next" type="button" class="rounded-xl border border-slate-300 px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-100 disabled:border-slate-200 disabled:text-slate-400">Next</button>
+				</div>
+			</div>
+		}
+
+		@components.Modal("gallery-slideshow-overlay", "mx-auto max-w-7xl") {
+				@SlideshowPlayer("gallery-overlay", SlideshowPlayerData{}, true, true)
+		}
+		<script>
+			(function () {
+				const openBtn = document.getElementById('open-slideshow-overlay');
+				const settingsBtn = document.getElementById('open-settings-btn');
+				const overlay = document.getElementById('gallery-slideshow-overlay');
+				const filtersForm = document.getElementById('filters-form');
+				const playerRoot = overlay ? overlay.querySelector('[data-slideshow-player]') : null;
+				if (!openBtn || !overlay || !filtersForm || !playerRoot) return;
+
+				async function openOverlay(event) {
+					event.preventDefault();
+					const params = new URLSearchParams(new FormData(filtersForm));
+					params.delete('page');
+					const response = await fetch('/api/slideshow/items?' + params.toString(), {
+						headers: { 'Accept': 'application/json' }
+					});
+					if (!response.ok) {
+						window.location.href = '/slideshow?' + params.toString();
+						return;
+					}
+					const payload = await response.json();
+					overlay.classList.remove('hidden');
+					document.body.classList.add('overflow-hidden');
+					if (window.GalleryDuckUI && window.GalleryDuckUI.createSlideshowPlayer) {
+						window.GalleryDuckUI.createSlideshowPlayer(playerRoot, payload);
+					}
+				}
+
+				function closeOverlay() {
+					overlay.classList.add('hidden');
+					document.body.classList.remove('overflow-hidden');
+				}
+
+				openBtn.addEventListener('click', openOverlay);
+				if (settingsBtn) {
+					settingsBtn.addEventListener('click', function () {
+						window.location.href = '/settings';
+					});
+				}
+				overlay.addEventListener('click', function (event) {
+					if (event.target === overlay) closeOverlay();
+				});
+				playerRoot.addEventListener('slideshow:close', closeOverlay);
+			})();
+		</script>
+		</div>
+	}
+}
+
+templ GallerySubTypeOptions(data GalleryPageData) {
+	<div data-subtype-filter class="space-y-3">
+		<input type="hidden" name="subtypes_present" value="1"/>
+		@components.Checkbox("subtypes-all", "__subtypes_all__", "All subtypes", "1", data.SubTypeAllChecked)
+		if len(data.SubTypeOptions) > 0 {
+			<div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+				for _, option := range data.SubTypeOptions {
+					@components.Checkbox(option.ID, "sub_type", option.Label, option.Value, option.Checked)
+				}
+			</div>
+		} else {
+			<p class="text-sm text-slate-500">No subtypes available for the selected media type.</p>
+		}
+	</div>
+}
+
+templ GalleryResults(data GalleryPageData) {
+	<section class="rounded-2xl border border-slate-200 bg-white p-4 md:p-5 shadow-sm mt-4">
+		<div id="media-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+			if data.Pagination.Mode == "endless" {
+				for _, item := range data.Items {
+					@MediaCard(item)
+				}
+			} else {
+				for _, item := range data.Items {
+					@MediaCard(item)
+				}
+			}
+		</div>
+		if len(data.Items) == 0 {
+			<div class="py-12 text-center text-slate-500">No media found for current filters.</div>
+		}
+	</section>
+
+	if data.Pagination.Mode == "page" {
+		<section class="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm mt-4">
+			<div class="text-sm text-slate-600">Total: <strong>{ fmt.Sprintf("%d", data.Pagination.Total) }</strong> · Page <strong>{ fmt.Sprintf("%d", data.Pagination.Page) }</strong></div>
+			<div class="flex gap-2">
+				if data.Pagination.HasPrev {
+					<button
+						data-page-prev
+						class="rounded-xl border border-slate-300 px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+						hx-get={ data.Pagination.PrevURL }
+						hx-target="#media-results"
+						hx-swap="innerHTML"
+						hx-push-url="true"
+					>Prev</button>
+				} else {
+					<button data-page-prev class="rounded-xl border border-slate-200 px-3 py-1.5 text-sm font-semibold text-slate-400" disabled>Prev</button>
+				}
+				if data.Pagination.HasNext {
+					<button
+						data-page-next
+						class="rounded-xl border border-slate-300 px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+						hx-get={ data.Pagination.NextURL }
+						hx-target="#media-results"
+						hx-swap="innerHTML"
+						hx-push-url="true"
+					>Next</button>
+				} else {
+					<button data-page-next class="rounded-xl border border-slate-200 px-3 py-1.5 text-sm font-semibold text-slate-400" disabled>Next</button>
+				}
+			</div>
+		</section>
+	} else {
+		<section id="endless-controls" class="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm mt-6">
+			<div class="text-sm text-slate-600">Endless scroll · Total <strong>{ fmt.Sprintf("%d", data.Pagination.Total) }</strong></div>
+			if data.Pagination.HasNext {
+				<div class="flex items-center gap-2">
+					<button
+						class="rounded-xl border border-slate-300 px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+						hx-get={ data.Pagination.NextChunkURL }
+						hx-target="#media-grid"
+						hx-swap="beforeend"
+					>Load more</button>
+					<div
+						class="h-1 w-1"
+						hx-get={ data.Pagination.NextChunkURL }
+						hx-trigger="revealed once"
+						hx-target="#media-grid"
+						hx-swap="beforeend"
+					></div>
+				</div>
+			} else {
+				<span class="text-sm text-slate-500">No more media.</span>
+			}
+		</section>
+	}
+}
+
+templ GalleryEndlessChunk(data GalleryPageData) {
+	for _, item := range data.Items {
+		@MediaCard(item)
+	}
+	<div id="endless-controls" hx-swap-oob="true" class="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm mt-6">
+		<div class="text-sm text-slate-600">Endless scroll · Total <strong>{ fmt.Sprintf("%d", data.Pagination.Total) }</strong></div>
+		if data.Pagination.HasNext {
+			<div class="flex items-center gap-2">
+				<button
+					class="rounded-xl border border-slate-300 px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+					hx-get={ data.Pagination.NextChunkURL }
+					hx-target="#media-grid"
+					hx-swap="beforeend"
+				>Load more</button>
+				<div
+					class="h-1 w-1"
+					hx-get={ data.Pagination.NextChunkURL }
+					hx-trigger="revealed once"
+					hx-target="#media-grid"
+					hx-swap="beforeend"
+				></div>
+			</div>
+		} else {
+			<span class="text-sm text-slate-500">No more media.</span>
+		}
+	</div>
+}
+
+templ MediaCard(item GalleryItem) {
+	<article
+		class="cursor-pointer rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3 transition hover:border-slate-300 hover:shadow-sm"
+		role="button"
+		tabindex="0"
+		data-media-card
+		data-media-type={ item.Type }
+		data-media-src={ item.Src }
+		data-media-name={ item.Name }
+		data-media-subtype={ item.SubType }
+		data-media-date={ item.Date }
+	>
+		if item.Type == "image" {
+			<img loading="lazy" src={ item.Src } alt={ item.Name } class="w-full h-44 object-cover rounded-lg bg-slate-200"/>
+		}
+		if item.Type == "video" {
+			<video controls preload="metadata" src={ item.Src } class="w-full h-44 object-cover rounded-lg bg-slate-200"></video>
+		}
+		if item.Type == "audio" {
+			<audio controls preload="metadata" src={ item.Src } class="w-full"></audio>
+		}
+		<div class="min-w-0">
+			<h3 class="font-semibold text-slate-900 truncate" title={ item.Name }>{ item.Name }</h3>
+			<p class="text-xs text-slate-600 mt-1">{ item.Type } · { item.SubType }</p>
+			<p class="text-xs text-slate-500 mt-1">Date: { item.Date }</p>
+		</div>
+	</article>
+}

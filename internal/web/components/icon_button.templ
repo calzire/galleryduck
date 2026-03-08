@@ -1,0 +1,17 @@
+package components
+
+templ IconButton(id string, label string, iconSrc string, className string) {
+	@IconButtonWithImgClass(id, label, iconSrc, className, "h-5 w-5")
+}
+
+templ IconButtonWithImgClass(id string, label string, iconSrc string, className string, imgClass string) {
+	<button
+		id={ id }
+		type="button"
+		aria-label={ label }
+		title={ label }
+		class={ className }
+	>
+		<img src={ iconSrc } alt="" class={ imgClass }/>
+	</button>
+}
