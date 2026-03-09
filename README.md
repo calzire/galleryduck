@@ -9,6 +9,7 @@ GalleryDuck is a lightweight self-hosted media gallery written in Go. It scans l
 - Media filtering by type, subtype, year, date, and search
 - Slideshow mode with configurable defaults
 - Settings page for library paths and UI/runtime preferences
+- Optional password lock for `/settings` with login/logout flow
 - JSON API endpoints under `/api/*`
 - SQLite health endpoint support
 
@@ -68,8 +69,17 @@ Main settings include:
 - `default_view`
 - `pagination_mode`
 - slideshow defaults (`speed_ms`, `transition`, `autoplay`, `loop`, `fullscreen`)
+- settings lock (`settings_password_salt`, `settings_password_hash`)
 
 `PORT` environment variable takes precedence over saved config port.
+
+### Settings Access Protection
+
+- By default (new install), `/settings` is open so you can configure the app.
+- Once you set a settings password from `/settings`, the page is locked and requires login.
+- Login route: `POST /settings/login`
+- Logout route: `POST /settings/logout`
+- To disable protection manually, clear both `settings_password_salt` and `settings_password_hash` in the config file.
 
 ## Development
 
@@ -131,6 +141,8 @@ Web routes:
 
 - `GET /`
 - `GET /settings`
+- `POST /settings/login`
+- `POST /settings/logout`
 - `GET /slideshow`
 
 ## Project Layout
