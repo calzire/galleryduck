@@ -23,6 +23,9 @@ templ SettingsPage(data SettingsPageData) {
 				if data.Saved {
 					<div class="rounded-xl border border-emerald-300 bg-emerald-50 p-3 text-emerald-900 shadow-sm">Settings saved.</div>
 				}
+				if data.RestartRequired {
+					<div class="rounded-xl border border-amber-300 bg-amber-50 p-3 text-amber-900 shadow-sm">Port change saved. Restart GalleryDuck to apply the new port.</div>
+				}
 				if data.HasError {
 					<div class="rounded-xl border border-red-300 bg-red-50 p-3 text-red-900 shadow-sm">{ data.ErrorMessage }</div>
 				}
@@ -94,6 +97,11 @@ templ SettingsPage(data SettingsPageData) {
 					</label>
 
 					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+						<label class="block">
+							<span class="text-sm font-semibold text-slate-700">Port</span>
+							<input type="number" min="1" max="65535" step="1" name="port" value={ fmt.Sprintf("%d", data.Port) } class="mt-2 w-full rounded-xl border border-slate-300 bg-white p-2.5 focus:border-slate-500 focus:ring-2 focus:ring-slate-300"/>
+							<p class="mt-1 text-xs text-slate-500">Applies after restart. Environment variable <code>PORT</code> still overrides this value.</p>
+						</label>
 						<label class="block">
 							<span class="text-sm font-semibold text-slate-700">Theme</span>
 							<select name="theme" class="mt-2 w-full rounded-xl border border-slate-300 bg-white p-2.5 focus:border-slate-500 focus:ring-2 focus:ring-slate-300">

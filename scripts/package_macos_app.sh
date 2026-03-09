@@ -30,8 +30,8 @@ BIN="${SCRIPT_DIR}/galleryduckd"
 LOG_DIR="${HOME}/Library/Logs/GalleryDuck"
 LOG_FILE="${LOG_DIR}/galleryduck.log"
 PID_FILE="${HOME}/Library/Application Support/GalleryDuck/galleryduck.pid"
-PORT="${PORT:-8080}"
-URL="http://localhost:${PORT}"
+CONFIG_FILE="${HOME}/.galleryduck/config.json"
+DEFAULT_PORT="8787"
 
 mkdir -p "${LOG_DIR}"
 mkdir -p "$(dirname "${PID_FILE}")"
@@ -55,6 +55,78 @@ is_running() {
   fi
   rm -f "${PID_FILE}"
   return 1
+}
+
+is_valid_port() {
+  local value="$1"
+  if [[ ! "${value}" =~ ^[0-9]+$ ]]; then
+    return 1
+  fi
+  if (( value < 1 || value > 65535 )); then
+    return 1
+  fi
+  return 0
+}
+
+configured_port() {
+  if is_valid_port "${PORT:-}"; then
+    echo "${PORT}"
+    return
+  fi
+
+  if [[ -f "${CONFIG_FILE}" ]]; then
+    local file_port
+    file_port="$(
+      sed -n 's/.*"port"[[:space:]]*:[[:space:]]*\([0-9][0-9]*\).*/\1/p' "${CONFIG_FILE}" \
+        | head -n 1
+    )"
+    if is_valid_port "${file_port}"; then
+      echo "${file_port}"
+      return
+    fi
+  fi
+
+  echo "${DEFAULT_PORT}"
+}
+
+running_port() {
+  local pid="$1"
+  if [[ -z "${pid}" ]]; then
+    return 1
+  fi
+
+  local endpoint port
+  endpoint="$(lsof -Pan -p "${pid}" -iTCP -sTCP:LISTEN 2>/dev/null | awk 'NR==2 {print $9}')"
+  if [[ -z "${endpoint}" ]]; then
+    return 1
+  fi
+
+  port="${endpoint##*:}"
+  port="${port%% *}"
+  if ! is_valid_port "${port}"; then
+    return 1
+  fi
+
+  echo "${port}"
+}
+
+effective_port() {
+  local pid port
+  pid="$(get_pid)"
+  if is_running; then
+    port="$(running_port "${pid}" || true)"
+    if is_valid_port "${port}"; then
+      echo "${port}"
+      return
+    fi
+  fi
+  configured_port
+}
+
+effective_url() {
+  local port
+  port="$(effective_port)"
+  echo "http://localhost:${port}"
 }
 
 start_server() {
@@ -120,6 +192,7 @@ JXA
 
 if is_running; then
   pid="$(get_pid)"
+  URL="$(effective_url)"
   CHOICE="$(choose_action "GalleryDuck Server is running.
 PID: ${pid}
 URL: ${URL}" "Stop Server|Open in Browser|View Logs" "Open in Browser" 2>>"${LOG_FILE}" || true)"
@@ -129,6 +202,7 @@ PID: ${pid}
 URL: ${URL}" "Stop Server|Open in Browser|View Logs" "Open in Browser" 2>>"${LOG_FILE}" || true)"
   fi
 else
+  URL="$(effective_url)"
   CHOICE="$(choose_action "GalleryDuck Server is not running.
 URL: ${URL}" "Start Server|Open in Browser|View Logs" "Start Server" 2>>"${LOG_FILE}" || true)"
   if [[ -z "${CHOICE}" ]]; then
@@ -145,6 +219,7 @@ fi
 case "${CHOICE}" in
   "Start Server")
     start_server
+    URL="$(effective_url)"
     /usr/bin/open "${URL}" >/dev/null 2>&1 || true
     ;;
   "Stop Server")
@@ -154,6 +229,7 @@ case "${CHOICE}" in
     if ! is_running; then
       start_server
     fi
+    URL="$(effective_url)"
     /usr/bin/open "${URL}" >/dev/null 2>&1 || true
     ;;
   "View Logs")

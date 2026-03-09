@@ -11,7 +11,7 @@ func ServerPort(addr string) int {
 	portText := strings.TrimPrefix(addr, ":")
 	port, err := strconv.Atoi(portText)
 	if err != nil || port <= 0 {
-		return 8080
+		return 8787
 	}
 	return port
 }

@@ -70,23 +70,27 @@ type SlideshowPlayerData struct {
 }
 
 type SettingsPageData struct {
-	ConfigPath   string
-	LibraryPaths string
-	Theme        string
-	DefaultSort  string
-	DefaultView  string
-	Pagination   string
-	SpeedMS      int
-	Transition   string
-	Autoplay     bool
-	Loop         bool
-	Fullscreen   bool
-	MediaCount   int
-	LocalURL     string
-	LANURL       string
-	LANQRURL     string
-	Saved        bool
-	HasError     bool
-	ErrorMessage string
-	LibraryCount int
+	ConfigPath      string
+	LibraryPaths    string
+	Port            int
+	Theme           string
+	DefaultSort     string
+	DefaultView     string
+	Pagination      string
+	SpeedMS         int
+	Transition      string
+	Autoplay        bool
+	Loop            bool
+	Fullscreen      bool
+	MediaCount      int
+	LocalURL        string
+	LANURL          string
+	LANQRURL        string
+	Saved           bool
+	RestartRequired bool
+	HasError        bool
+	ErrorMessage    string
+	LibraryCount    int
+	RequireAuth     bool
+	PasswordSet     bool
 }

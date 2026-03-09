@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"galleryduck/internal/app/gallery"
@@ -22,20 +23,28 @@ type Server struct {
 }
 
 func New() *http.Server {
-	port, _ := strconv.Atoi(os.Getenv("PORT"))
-	if port <= 0 {
-		port = 8080
-	}
 	srv := &Server{
-		port: port,
-
-		db: db.New(),
+		port: 8787,
+		db:   db.New(),
 	}
 	gallerySvc, err := gallery.NewService()
 	if err != nil {
 		log.Printf("gallery init failed: %v", err)
 	} else {
 		srv.gallery = gallerySvc
+		cfg := gallerySvc.Config()
+		if cfg.Port >= 1 && cfg.Port <= 65535 {
+			srv.port = cfg.Port
+		}
+	}
+
+	if envPort := strings.TrimSpace(os.Getenv("PORT")); envPort != "" {
+		port, err := strconv.Atoi(envPort)
+		if err != nil || port < 1 || port > 65535 {
+			log.Printf("invalid PORT value %q, using %d", envPort, srv.port)
+		} else {
+			srv.port = port
+		}
 	}
 
 	// Declare Server config

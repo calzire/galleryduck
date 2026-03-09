@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"galleryduck/internal/netinfo"
@@ -33,7 +34,9 @@ func (s *Server) handleSettingsSave(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cfg := s.gallery.Config()
+	prevPort := cfg.Port
 	cfg.LibraryPaths = splitLines(r.FormValue("library_paths"))
+	cfg.Port = s.port
 	cfg.Theme = strings.TrimSpace(r.FormValue("theme"))
 	cfg.DefaultSort = strings.TrimSpace(r.FormValue("default_sort"))
 	cfg.DefaultView = strings.TrimSpace(r.FormValue("default_view"))
@@ -50,12 +53,25 @@ func (s *Server) handleSettingsSave(w http.ResponseWriter, r *http.Request) {
 			cfg.Slideshow.SpeedMS = parsed
 		}
 	}
+	if port := strings.TrimSpace(r.FormValue("port")); port != "" {
+		parsed, err := strconv.Atoi(port)
+		if err != nil || parsed < 1 || parsed > 65535 {
+			s.renderSettingsPage(w, r, "port must be a number between 1 and 65535", false)
+			return
+		}
+		cfg.Port = parsed
+	}
 
 	if err := s.gallery.UpdateConfig(cfg); err != nil {
 		s.renderSettingsPage(w, r, err.Error(), false)
 		return
 	}
-	http.Redirect(w, r, "/settings?saved=1", http.StatusSeeOther)
+
+	redirectURL := "/settings?saved=1"
+	if cfg.Port != prevPort {
+		redirectURL += "&restart=1"
+	}
+	http.Redirect(w, r, redirectURL, http.StatusSeeOther)
 }
 
 func (s *Server) renderSettingsPage(w http.ResponseWriter, r *http.Request, errMessage string, saved bool) {
@@ -72,25 +88,27 @@ func (s *Server) renderSettingsPage(w http.ResponseWriter, r *http.Request, errM
 	}
 
 	data := webpages.SettingsPageData{
-		ConfigPath:   s.gallery.ConfigPath(),
-		LibraryPaths: strings.Join(cfg.LibraryPaths, "\n"),
-		Theme:        cfg.Theme,
-		DefaultSort:  cfg.DefaultSort,
-		DefaultView:  cfg.DefaultView,
-		Pagination:   cfg.PaginationMode,
-		SpeedMS:      cfg.Slideshow.SpeedMS,
-		Transition:   cfg.Slideshow.Transition,
-		Autoplay:     cfg.Slideshow.Autoplay,
-		Loop:         cfg.Slideshow.Loop,
-		Fullscreen:   cfg.Slideshow.Fullscreen,
-		MediaCount:   s.gallery.MediaCount(),
-		LocalURL:     localURL,
-		LANURL:       lanURL,
-		LANQRURL:     lanQRURL,
-		Saved:        saved || r.URL.Query().Get("saved") == "1",
-		HasError:     errMessage != "",
-		ErrorMessage: errMessage,
-		LibraryCount: len(cfg.LibraryPaths),
+		ConfigPath:      s.gallery.ConfigPath(),
+		LibraryPaths:    strings.Join(cfg.LibraryPaths, "\n"),
+		Port:            cfg.Port,
+		Theme:           cfg.Theme,
+		DefaultSort:     cfg.DefaultSort,
+		DefaultView:     cfg.DefaultView,
+		Pagination:      cfg.PaginationMode,
+		SpeedMS:         cfg.Slideshow.SpeedMS,
+		Transition:      cfg.Slideshow.Transition,
+		Autoplay:        cfg.Slideshow.Autoplay,
+		Loop:            cfg.Slideshow.Loop,
+		Fullscreen:      cfg.Slideshow.Fullscreen,
+		MediaCount:      s.gallery.MediaCount(),
+		LocalURL:        localURL,
+		LANURL:          lanURL,
+		LANQRURL:        lanQRURL,
+		Saved:           saved || r.URL.Query().Get("saved") == "1",
+		HasError:        errMessage != "",
+		ErrorMessage:    errMessage,
+		LibraryCount:    len(cfg.LibraryPaths),
+		RestartRequired: r.URL.Query().Get("restart") == "1",
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

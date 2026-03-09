@@ -17,12 +17,15 @@ import (
 )
 
 type Config struct {
-	LibraryPaths   []string        `json:"library_paths"`
-	Theme          string          `json:"theme"`
-	DefaultSort    string          `json:"default_sort"`
-	DefaultView    string          `json:"default_view"`
-	PaginationMode string          `json:"pagination_mode"`
-	Slideshow      SlideshowConfig `json:"slideshow"`
+	LibraryPaths         []string        `json:"library_paths"`
+	Port                 int             `json:"port"`
+	Theme                string          `json:"theme"`
+	DefaultSort          string          `json:"default_sort"`
+	DefaultView          string          `json:"default_view"`
+	PaginationMode       string          `json:"pagination_mode"`
+	Slideshow            SlideshowConfig `json:"slideshow"`
+	SettingsPasswordSalt string          `json:"settings_password_salt,omitempty"`
+	SettingsPasswordHash string          `json:"settings_password_hash,omitempty"`
 }
 
 type SlideshowConfig struct {
@@ -339,6 +342,7 @@ func (s *Service) saveConfigLocked() error {
 func (s *Service) defaultConfig() Config {
 	return Config{
 		LibraryPaths:   []string{s.defaultDir},
+		Port:           8787,
 		Theme:          "system",
 		DefaultSort:    "date_desc",
 		DefaultView:    "grid",
@@ -383,6 +387,9 @@ func (s *Service) normalizeConfig(cfg Config) Config {
 		uniquePaths[0] = s.defaultDir
 	}
 	cfg.LibraryPaths = uniquePaths
+	if cfg.Port < 1 || cfg.Port > 65535 {
+		cfg.Port = 8787
+	}
 
 	if cfg.Theme == "" {
 		cfg.Theme = "system"
@@ -401,6 +408,12 @@ func (s *Service) normalizeConfig(cfg Config) Config {
 	}
 	if cfg.Slideshow.Transition == "" {
 		cfg.Slideshow.Transition = "fade"
+	}
+	cfg.SettingsPasswordSalt = strings.TrimSpace(cfg.SettingsPasswordSalt)
+	cfg.SettingsPasswordHash = strings.TrimSpace(cfg.SettingsPasswordHash)
+	if cfg.SettingsPasswordSalt == "" || cfg.SettingsPasswordHash == "" {
+		cfg.SettingsPasswordSalt = ""
+		cfg.SettingsPasswordHash = ""
 	}
 
 	return cfg
