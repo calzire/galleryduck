@@ -28,6 +28,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.Handle("/assets/", fileServer)
 	mux.HandleFunc("/favicon.ico", s.faviconHandler)
 	mux.HandleFunc("/settings", s.settingsHandler)
+	mux.HandleFunc("/settings/login", s.settingsLoginHandler)
+	mux.HandleFunc("/settings/logout", s.settingsLogoutHandler)
 	mux.HandleFunc("/slideshow", s.slideshowHandler)
 	mux.HandleFunc("/", s.homeHandler)
 
