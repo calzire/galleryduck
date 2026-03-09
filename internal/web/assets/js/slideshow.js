@@ -65,6 +65,8 @@
     const btnPrev = root.querySelector("[data-role='prev']");
     const btnNext = root.querySelector("[data-role='next']");
     const btnPlay = root.querySelector("[data-role='play']");
+    const playIcon = btnPlay ? btnPlay.querySelector("[data-role='play-icon']") : null;
+    const playLabel = btnPlay ? btnPlay.querySelector("[data-role='play-label']") : null;
     const btnClose = root.querySelector("[data-role='close']");
     const btnFullscreen = root.querySelector("[id$='-fullscreen']");
     const speedSel = root.querySelector("[data-role='speed']");
@@ -98,6 +100,22 @@
       parseBool(dataset.autoFullscreen, false)
     );
     let timer = null;
+
+    function setPlayButtonState() {
+      if (!btnPlay) return;
+      if (playLabel) playLabel.textContent = playing ? "Pause" : "Play";
+      if (playIcon) playIcon.src = playing ? "/assets/svg/pause.svg" : "/assets/svg/play.svg";
+      btnPlay.setAttribute("aria-label", playing ? "Pause slideshow" : "Play slideshow");
+      btnPlay.setAttribute("title", playing ? "Pause slideshow" : "Play slideshow");
+      btnPlay.classList.toggle("bg-emerald-700", playing);
+      btnPlay.classList.toggle("hover:bg-emerald-600", playing);
+      btnPlay.classList.toggle("text-white", playing);
+      btnPlay.classList.toggle("border", !playing);
+      btnPlay.classList.toggle("border-slate-300", !playing);
+      btnPlay.classList.toggle("bg-white", !playing);
+      btnPlay.classList.toggle("text-slate-700", !playing);
+      btnPlay.classList.toggle("hover:bg-slate-100", !playing);
+    }
 
     function isFullscreenActive() {
       return (
@@ -268,14 +286,14 @@
 
     function start() {
       playing = true;
-      if (btnPlay) btnPlay.textContent = "Pause";
+      setPlayButtonState();
       stopTimer();
       timer = window.setInterval(next, intervalMS());
     }
 
     function stop() {
       playing = false;
-      if (btnPlay) btnPlay.textContent = "Play";
+      setPlayButtonState();
       stopTimer();
     }
 
@@ -355,13 +373,14 @@
     resetOrder();
     render();
     updateFullscreenButton();
-
-    if (autoFullscreen && !isFullscreenActive()) {
-      toggleFullscreen();
+    if (playing) {
+      start();
+      if (autoFullscreen && !isFullscreenActive()) {
+        toggleFullscreen();
+      }
+    } else {
+      stop();
     }
-
-    if (playing) start();
-    else stop();
 
     root._slideshowCleanup = function () {
       stopTimer();

@@ -11,6 +11,38 @@
 }
 
 @layer components {
+  .ui-icon {
+    filter: brightness(0);
+  }
+
+  button {
+    @apply transition-colors;
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  button[class*="border-slate-300"] {
+    @apply bg-white text-slate-700;
+  }
+
+  button[class*="border-slate-300"]:hover:not(:disabled) {
+    @apply bg-slate-100;
+  }
+
+  html.dark .ui-icon,
+  body.theme-dark .ui-icon,
+  html[data-theme-resolved="dark"] .ui-icon,
+  body[data-theme-resolved="dark"] .ui-icon {
+    filter: invert(1) brightness(1.15);
+  }
+
+  .ui-icon-force-white {
+    filter: invert(1) brightness(1.2) !important;
+  }
+
   html.dark .bg-white,
   html.dark .bg-white\/90,
   body.theme-dark .bg-white,
@@ -55,6 +87,36 @@
   body[data-theme-resolved="dark"] .border-slate-300 {
     @apply border-slate-700;
     border-color: var(--color-slate-700) !important;
+  }
+
+  html.dark button[class*="border-slate-300"],
+  body.theme-dark button[class*="border-slate-300"],
+  html[data-theme-resolved="dark"] button[class*="border-slate-300"],
+  body[data-theme-resolved="dark"] button[class*="border-slate-300"] {
+    @apply bg-slate-800 text-slate-100 border-slate-700;
+    background-color: var(--color-slate-800) !important;
+    color: var(--color-slate-100) !important;
+    border-color: var(--color-slate-700) !important;
+  }
+
+  html.dark button[class*="border-slate-300"]:hover:not(:disabled),
+  body.theme-dark button[class*="border-slate-300"]:hover:not(:disabled),
+  html[data-theme-resolved="dark"] button[class*="border-slate-300"]:hover:not(:disabled),
+  body[data-theme-resolved="dark"] button[class*="border-slate-300"]:hover:not(:disabled) {
+    @apply bg-slate-700;
+    background-color: var(--color-slate-700) !important;
+  }
+
+  html.dark .hover\:bg-white:hover,
+  html.dark .hover\:bg-slate-100:hover,
+  body.theme-dark .hover\:bg-white:hover,
+  body.theme-dark .hover\:bg-slate-100:hover,
+  html[data-theme-resolved="dark"] .hover\:bg-white:hover,
+  html[data-theme-resolved="dark"] .hover\:bg-slate-100:hover,
+  body[data-theme-resolved="dark"] .hover\:bg-white:hover,
+  body[data-theme-resolved="dark"] .hover\:bg-slate-100:hover {
+    @apply bg-slate-700;
+    background-color: var(--color-slate-700) !important;
   }
 
   html.dark .text-slate-900,

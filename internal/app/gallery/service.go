@@ -346,7 +346,7 @@ func (s *Service) defaultConfig() Config {
 		Slideshow: SlideshowConfig{
 			SpeedMS:    3000,
 			Transition: "fade",
-			Autoplay:   false,
+			Autoplay:   true,
 			Loop:       true,
 			Fullscreen: true,
 		},

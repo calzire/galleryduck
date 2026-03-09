@@ -27,9 +27,18 @@ templ SlideshowPlayer(idPrefix string, data SlideshowPlayerData, showClose bool,
 		</div>
 		<div class="mt-3 grid grid-cols-1 md:grid-cols-5 md:items-end gap-3">
 			<div class="md:col-span-2 flex flex-wrap gap-2 self-end md:pb-0.5">
-				<button data-role="prev" type="button" class="inline-flex h-11 items-center justify-center rounded-xl border border-slate-300 px-5 text-sm font-semibold text-slate-700 hover:bg-slate-100">Prev</button>
-				<button data-role="play" type="button" class="inline-flex h-11 items-center justify-center rounded-xl bg-emerald-700 px-5 text-sm font-semibold text-white hover:bg-emerald-600">Play</button>
-				<button data-role="next" type="button" class="inline-flex h-11 items-center justify-center rounded-xl border border-slate-300 px-5 text-sm font-semibold text-slate-700 hover:bg-slate-100">Next</button>
+				<button data-role="prev" type="button" class="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+					<img src="/assets/svg/chevron-left.svg" alt="" class="ui-icon h-5 w-5"/>
+					<span>Prev</span>
+				</button>
+				<button data-role="play" type="button" class="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+					<img data-role="play-icon" src="/assets/svg/play.svg" alt="" class="ui-icon-force-white h-5 w-5"/>
+					<span data-role="play-label">Play</span>
+				</button>
+				<button data-role="next" type="button" class="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+					<span>Next</span>
+					<img src="/assets/svg/chevron-right.svg" alt="" class="ui-icon h-5 w-5"/>
+				</button>
 			</div>
 			<label class="block">
 				<span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Speed (sec)</span>
@@ -55,11 +64,12 @@ templ SlideshowPlayer(idPrefix string, data SlideshowPlayerData, showClose bool,
 		</div>
 
 		<div data-role="stage-wrap" class="relative mt-4">
-			@components.IconButton(
+			@components.IconButtonWithImgClass(
 				idPrefix + "-fullscreen",
 				"Enter fullscreen",
 				"/assets/svg/fullscreen.svg",
-				"absolute right-3 top-3 z-10 inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 bg-white/90 text-slate-700 shadow-sm hover:bg-white",
+				"absolute right-3 top-3 z-10 inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 bg-white/90 text-slate-700 shadow-sm hover:bg-slate-100",
+				"h-5 w-5",
 			)
 			<div data-role="stage" class="relative w-full min-h-[52vh] flex items-center justify-center overflow-hidden rounded-xl bg-slate-100"></div>
 		</div>

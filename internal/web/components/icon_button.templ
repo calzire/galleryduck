@@ -10,8 +10,8 @@ templ IconButtonWithImgClass(id string, label string, iconSrc string, className 
 		type="button"
 		aria-label={ label }
 		title={ label }
-		class={ className }
+		class={ "ui-icon-button " + className }
 	>
-		<img src={ iconSrc } alt="" class={ imgClass }/>
+		<img src={ iconSrc } alt="" class={ "ui-icon " + imgClass }/>
 	</button>
 }
