@@ -39,3 +39,6 @@ tailwindcss
 
 # Temp Database
 test.db
+
+dist
+

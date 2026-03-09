@@ -74,4 +74,10 @@ watch: tailwind-install templ-install
 	echo "Watching app and styles..."; \
 	$$AIR_CMD
 
-.PHONY: all fmt gen build run test clean watch tailwind-install templ-install
+package-macos-app-arm64:
+	@./scripts/package_macos_app.sh arm64
+
+package-macos-app-amd64:
+	@./scripts/package_macos_app.sh amd64
+
+.PHONY: all fmt gen build run test clean watch tailwind-install templ-install package-macos-app-arm64 package-macos-app-amd64
