@@ -2,6 +2,8 @@
 
 GalleryDuck is a lightweight self-hosted media gallery written in Go. It scans local folders for images, videos, and audio files, then serves a clean web UI for browsing, filtering, and slideshow playback.
 
+![GalleryDuck app screenshot](./docs/assets/app-desktop.png)
+
 ## Features
 
 - Local-first gallery for images, videos, and audio

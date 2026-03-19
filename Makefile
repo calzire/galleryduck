@@ -36,7 +36,7 @@ build: tailwind-install templ-install
 	@go build -o main cmd/api/main.go
 
 # Run the application
-run: tailwind-install templ-install
+dev: tailwind-install templ-install
 	@$(MAKE) gen
 	@./tailwindcss -i internal/web/styles/input.css -o internal/web/assets/css/output.css
 	@go run cmd/api/main.go
